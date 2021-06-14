@@ -53,6 +53,9 @@ class Venue(db.Model):
     #past_shows = [] 
     #upcoming_shows = []
 
+    def __repr__(self):
+        return f'Venue: id({self.id}), name({self.name})'
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
@@ -73,9 +76,31 @@ class Artist(db.Model):
     #past_shows = [] 
     #upcoming_shows = []
 
-    
+    def __repr__(self):
+        return f'Artist: id({self.id}), name({self.name})'
 
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+# TODO: DONE: Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+class PastShow(db.Model):
+    __tablename__ = 'PastShow'
+
+    artist_id = db.Column(db.Integer, primary_key=True)
+    artist_name = db.Column(db.String(120))
+    artist_image_link = db.Column(db.String(500))
+    start_time = db.Column(db.String(120))
+
+    def __repr__(self):
+        return f'PastShow: id({self.id}), name({self.name})'
+    
+class UpcomingShow(db.Model):
+    __tablename__ = 'UpcomingShow'
+
+    artist_id = db.Column(db.Integer, primary_key=True)
+    artist_name = db.Column(db.String(120))
+    artist_image_link = db.Column(db.String(500))
+    start_time = db.Column(db.String(120))
+
+    def __repr__(self):
+       return f'UpcomingShow: id({self.id}), name({self.name})'
 
 #----------------------------------------------------------------------------#
 # Filters.
