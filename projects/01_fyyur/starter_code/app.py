@@ -43,8 +43,15 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    # TODO: DONE: implement any missing fields, as a database migration using Flask-Migrate
+    genres = db.Column(db.ARRAY(db.String))
+    website = db.Column(db.String(120))
+    seeking_talent = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(120))
+    past_shows_count = db.Column(db.Integer)
+    upcoming_shows_count = db.Column(db.Integer)
+    #past_shows = [] 
+    #upcoming_shows = []
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -57,8 +64,16 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    # TODO: DONE: implement any missing fields, as a database migration using Flask-Migrate
+    website = db.Column(db.String(120))
+    seeking_venue = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(120))
+    past_shows_count = db.Column(db.Integer)
+    upcoming_shows_count = db.Column(db.Integer)
+    #past_shows = [] 
+    #upcoming_shows = []
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
