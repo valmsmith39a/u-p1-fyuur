@@ -33,7 +33,7 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    __tablename__ = 'venues'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -50,14 +50,16 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(120))
     past_shows_count = db.Column(db.Integer)
     upcoming_shows_count = db.Column(db.Integer)
-    #past_shows = [] 
-    #upcoming_shows = []
+    # 'PastShow': name of the child class 
+    # 'venue': custom property name of a single parent object assigned to any child object 
+    past_shows = db.relationship('PastShow', backref='venue', lazy=True)
+    upcoming_shows = db.relationship('UpcomingShow', backref='venue', lazy=True)
 
     def __repr__(self):
         return f'Venue: id({self.id}), name({self.name})'
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+    __tablename__ = 'artists'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -73,34 +75,42 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(120))
     past_shows_count = db.Column(db.Integer)
     upcoming_shows_count = db.Column(db.Integer)
-    #past_shows = [] 
-    #upcoming_shows = []
+    past_shows = db.relationship('PastShow', backref='artist', lazy=True)
+    upcoming_shows = db.relationship('UpcomingShow', backref='artist', lazy=True)
 
     def __repr__(self):
         return f'Artist: id({self.id}), name({self.name})'
 
 # TODO: DONE: Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 class PastShow(db.Model):
-    __tablename__ = 'PastShow'
-
-    artist_id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'past_shows'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer)
     artist_name = db.Column(db.String(120))
     artist_image_link = db.Column(db.String(500))
-    start_time = db.Column(db.String(120))
+    start_time = db.Column(db.DateTime)
+    # Set up foreign key constraint, 'name_of_parent_table.id'
+    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
 
     def __repr__(self):
-        return f'PastShow: id({self.id}), name({self.name})'
+        return f'PastShow: id({self.id}), name({self.start_time})'
     
 class UpcomingShow(db.Model):
-    __tablename__ = 'UpcomingShow'
-
-    artist_id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'upcoming_shows'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer)
     artist_name = db.Column(db.String(120))
     artist_image_link = db.Column(db.String(500))
-    start_time = db.Column(db.String(120))
+    start_time = db.Column(db.DateTime)
+
+    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
 
     def __repr__(self):
-       return f'UpcomingShow: id({self.id}), name({self.name})'
+       return f'UpcomingShow: id({self.id}), name({self.start_time})'
 
 #----------------------------------------------------------------------------#
 # Filters.
