@@ -274,7 +274,29 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
+  # TODO: DONE: insert form data as a new Venue record in the db, instead
+  form = request.form
+  name = form['name']
+  city = form['city']
+  state = form['state']
+  address = form['address']
+  phone = form['phone']
+  genres = form['genres']
+  facebook_link = form['facebook_link']
+  image_link = form['image_link']
+  website_link = form['website_link']
+  seeking_talent = hasattr(form, 'seeking_talent')
+  seeking_description = form['seeking_description']
+
+  venue = Venue(name=name, city=city, state=state, address=address, phone=phone, image_link=image_link, facebook_link=facebook_link,
+  genres=genres, website=website_link, seeking_talent=seeking_talent, seeking_description=seeking_description)
+
+  db.session.add(venue)
+  db.session.commit()
+  print('venue id, ', venue.id)
+  print('venue name ', venue.name)
+  # Fix genres 
+
   # TODO: modify data to be the data object returned from db insertion
 
   # on successful db insert, flash success
