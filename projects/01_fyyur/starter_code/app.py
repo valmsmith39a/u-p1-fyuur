@@ -269,7 +269,9 @@ def create_venue_submission():
     website_link = form['website_link']
     seeking_talent = hasattr(form, 'seeking_talent')
     seeking_description = form['seeking_description']
-    # TODO: modify data to be the data object returned from db insertion
+    past_shows_count = 0
+    upcoming_shows_count = 0
+    # TODO: DONE: modify data to be the data object returned from db insertion
     venue = Venue(name=name, city=city, state=state, address=address, phone=phone, image_link=image_link, facebook_link=facebook_link,
     genres=genres, website=website_link, seeking_talent=seeking_talent, seeking_description=seeking_description)
     db.session.add(venue)
@@ -282,7 +284,7 @@ def create_venue_submission():
   finally:
     db.session.close()
   if error:
-    # TODO: on unsuccessful db insert, flash an error instead.
+    # TODO: DONE: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Venue ' + venue.name + ' could not be listed.') 
@@ -479,13 +481,44 @@ def create_artist_form():
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
   # called upon submitting the new artist listing form
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
+  # TODO: DONE: insert form data as a new Venue record in the db, instead
+  # TODO: DONE: modify data to be the data object returned from db insertion
+  error = False
+  try:
+    form = request.form
+    name = form['name']
+    city = form['city']
+    state = form['state']
+    phone = form['phone']
+    genres = form['genres']
+    facebook_link = form['facebook_link']
+    image_link = form['image_link']
+    website_link = form['website_link']
+    seeking_venue = hasattr(form, 'seeking_venue')
+    seeking_description = form['seeking_description']
+    past_shows_count = 0
+    upcoming_shows_count = 0
+    
+    artist = Artist(name=name, city=city, state=state, phone=phone, image_link=image_link, facebook_link=facebook_link,
+    genres=genres, website=website_link, seeking_venue=seeking_venue, seeking_description=seeking_description)
+    db.session.add(artist)
+    db.session.commit()
 
-  # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
+  except():
+    db.session.rollback()
+    error = True
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    # TODO: DONE: on unsuccessful db insert, flash an error instead.
+    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    flash('An error occurred. Venue ' + artist.name + ' could not be listed.') 
+  else:
+    # on successful db insert, flash success
+    flash('Venue ' + request.form['name'] + ' was successfully listed!')
+
   return render_template('pages/home.html')
 
 
