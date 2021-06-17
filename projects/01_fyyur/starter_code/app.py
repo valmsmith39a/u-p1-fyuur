@@ -70,7 +70,7 @@ class Artist(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     # TODO: DONE: implement any missing fields, as a database migration using Flask-Migrate
-    website = db.Column(db.String(120))
+    website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean)
     seeking_description = db.Column(db.String(120))
     past_shows_count = db.Column(db.Integer)
@@ -292,7 +292,7 @@ def edit_artist(artist_id):
   form.genres.data = artist.genres
   form.facebook_link.data = artist.facebook_link
   form.image_link.data = artist.image_link
-  #form.website_link.data = artist.website_link
+  form.website_link.data = artist.website_link
   form.seeking_venue.data = artist.seeking_venue
   form.seeking_description.data = artist.seeking_description
 
