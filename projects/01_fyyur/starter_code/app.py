@@ -9,6 +9,7 @@ import os
 from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func 
 from flask_migrate import Migrate
 import logging
 from logging import Formatter, FileHandler
@@ -86,10 +87,7 @@ class PastShow(db.Model):
     __tablename__ = 'past_shows'
     
     id = db.Column(db.Integer, primary_key=True)
-    #artist_id = db.Column(db.Integer)
-    #artist_name = db.Column(db.String(120))
-    #artist_image_link = db.Column(db.String(500))
-    start_time = db.Column(db.DateTime)
+    start_time = db.Column(db.String)
     # Set up foreign key constraint, 'name_of_parent_table.id'
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
@@ -101,11 +99,7 @@ class UpcomingShow(db.Model):
     __tablename__ = 'upcoming_shows'
     
     id = db.Column(db.Integer, primary_key=True)
-    #artist_id = db.Column(db.Integer)
-    #artist_name = db.Column(db.String(120))
-    #artist_image_link = db.Column(db.String(500))
-    start_time = db.Column(db.DateTime)
-
+    start_time = db.Column(db.String)
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
 
@@ -147,16 +141,22 @@ def venues():
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+  # TODO: DONE: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
+  search_term = request.form.get('search_term')
+  venues_found = db.session.query(Venue).filter(Venue.name.contains(search_term)).all()
+  venues_displayed = []
+  for venue in venues_found:
+    venue_displayed = {
+      "id": venue.id,
+      "name": venue.name,
+      "num_upcoming_shows": venue.upcoming_shows_count
+    }
+    venues_displayed.append(venue_displayed)
+  response = {
+    "count": len(venues_displayed),
+    "data": venues_displayed
   }
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
@@ -258,16 +258,22 @@ def artists():
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+  # TODO: DONE: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
-  response={
-    "count": 1,
-    "data": [{
-      "id": 4,
-      "name": "Guns N Petals",
-      "num_upcoming_shows": 0,
-    }]
+  search_term = request.form.get('search_term')
+  artists_found = db.session.query(Artist).filter(Artist.name.contains(search_term)).all()
+  artists_displayed = []
+  for artist in artists_found:
+    artist_displayed = {
+      "id": artist.id,
+      "name": artist.name,
+      "num_upcoming_shows": artist.upcoming_shows_count
+    }
+    artists_displayed.append(artist_displayed)
+  response = {
+    "count": len(artists_displayed),
+    "data": artists_displayed
   }
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
@@ -335,7 +341,6 @@ def edit_artist_submission(artist_id):
 def edit_venue(venue_id):
   form = VenueForm()
   venue = Venue.query.get(venue_id)
-  print('venue is: ', venue) 
   form.name.data = venue.name
   form.city.data = venue.city
   form.state.data = venue.state
@@ -439,45 +444,8 @@ def create_artist_submission():
 @app.route('/shows')
 def shows():
   # displays list of shows at /shows
-  # TODO: replace with real venues data.
+  # TODO: DONE: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "venue_id": 1,
-    "venue_name": "The Musical Hop",
-    "artist_id": 4,
-    "artist_name": "Guns N Petals",
-    "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-    "start_time": "2019-05-21T21:30:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 5,
-    "artist_name": "Matt Quevedo",
-    "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-    "start_time": "2019-06-15T23:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-01T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-08T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-15T20:00:00.000Z"
-  }]
-  
   shows = UpcomingShow.query.all()
   return render_template('pages/shows.html', shows=shows)
 
@@ -490,25 +458,19 @@ def create_shows():
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
-  # TODO: insert form data as a new Show record in the db, instead
+  # TODO: DONE: insert form data as a new Show record in the db, instead
   error = False
   try:
     form = request.form
     venue_id = form['venue_id']
     artist_id = form['artist_id']
     start_time = form['start_time']
-    
-    show = Show(venue_id=venue_id, arist_id=artist_id, start_time=start_time)
+
+    show = UpcomingShow(start_time=start_time, venue_id=venue_id, artist_id=artist_id)
     venue = Venue.query.get(venue_id)
     artist = Artist.query.get(artist_id)
-    
-    venue.upcoming_shows += 1
-    artist.upcoming_shows += 1
-
     db.session.add(show)
     db.session.commit()
-    past_shows_count = 0
-    upcoming_shows_count = 0
 
   except():
     db.session.rollback()
@@ -517,19 +479,13 @@ def create_show_submission():
   finally:
     db.session.close()
   if error:
-    # TODO: DONE: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-    flash('An error occurred. Show' + ' could not be listed.') 
+   # TODO:DONE: on unsuccessful db insert, flash an error instead.
+   # e.g., flash('An error occurred. Show could not be listed.')
+   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+   flash('An error occurred. Show' + ' could not be listed.') 
   else:
-    # on successful db insert, flash success
     flash('Show' + ' was successfully listed!')
 
-  # on successful db insert, flash success
-  #flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
 @app.errorhandler(404)
